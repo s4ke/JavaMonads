@@ -1,4 +1,4 @@
-package com.github.s4ke.monads;
+package com.github.s4ke.functional.monads;
 
 import org.junit.Test;
 

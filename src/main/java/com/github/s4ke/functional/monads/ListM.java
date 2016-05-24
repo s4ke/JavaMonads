@@ -1,4 +1,4 @@
-package com.github.s4ke.monads;
+package com.github.s4ke.functional.monads;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +24,11 @@ public class ListM<A> {
 
 	public List<A> get() {
 		return this.value.get();
+	}
+
+	@Override
+	public String toString() {
+		return this.get().toString();
 	}
 
 	public <B> ListM<B> bind(Function<A, ListM<B>> fn) {

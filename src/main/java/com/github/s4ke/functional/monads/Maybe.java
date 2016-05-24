@@ -1,4 +1,4 @@
-package com.github.s4ke.monads;
+package com.github.s4ke.functional.monads;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
