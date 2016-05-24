@@ -30,9 +30,16 @@ public class ParallelArrow<A, B> implements Function<ListM<A>, ListM<B>> {
 		int size = as.get().size();
 		ListM<B> ret = this.fn.apply( as );
 		if ( ret.get().size() != size ) {
-			throw new IllegalArgumentException( "input length was " + size + ", but output length was " + ret.get().size() );
+			throw new IllegalArgumentException(
+					"input length was " + size + ", but output length was " + ret.get()
+							.size()
+			);
 		}
 		return ret;
+	}
+
+	public ListM<B> apply(List<A> as) {
+		return this.apply( new ListM<>( as ) );
 	}
 
 	@SafeVarargs
