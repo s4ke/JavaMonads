@@ -1,2 +1,2 @@
-# JavaMonads
-Some Java Monads
+# functional
+Some Java classes for Functional Programming
