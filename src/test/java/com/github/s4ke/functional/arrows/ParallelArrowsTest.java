@@ -14,40 +14,34 @@ import org.junit.Test;
  */
 public class ParallelArrowsTest {
 
-	public Integer plusOne(Integer val) {
-		return val + 1;
-	}
+    public Integer plusOne(Integer val) {
+        return val + 1;
+    }
 
-	public ListM<Integer> plusOneL(ListM<Integer> val) {
-		return val.map( this::plusOne );
-	}
+    public static List<Integer> values() {
+        List<Integer> ret = new ArrayList<>(1000);
+        for (int i = 1; i < 1001; ++i) {
+            ret.add(i);
+        }
+        return ret;
+    }
 
-	public static List<Integer> values() {
-		List<Integer> ret = new ArrayList<>( 1000 );
-		for ( int i = 1; i < 1001; ++i ) {
-			ret.add( i );
-		}
-		return ret;
-	}
+    @Test
+    public void test() {
+        ExecutorService exec = Executors.newFixedThreadPool(16);
+        ListM<Integer> values = ListM.fromList(values());
 
-	@Test
-	public void test() {
-		ExecutorService exec = Executors.newFixedThreadPool( 4 );
-		ListM<Integer> values = new ListM<>( values() );
-
-		try {
-			System.out.println(
-					ParallelArrow.parrallel( exec, this::plusOneL )
-							.parallel( this::plusOneL )
-							.apply(
-									values,
-									values
-							)
-			);
-		}
-		finally {
-			exec.shutdown();
-		}
-	}
+        try {
+            ListM<Integer> result =
+                    ParallelArrow.parallel(ListM.infinite(this::plusOne))
+                            .runOn(exec)
+                            .apply(values);
+            System.out.println(
+                    result.toList()
+            );
+        } finally {
+            exec.shutdown();
+        }
+    }
 
 }
