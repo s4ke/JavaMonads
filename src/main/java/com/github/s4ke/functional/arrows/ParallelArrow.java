@@ -1,9 +1,7 @@
 package com.github.s4ke.functional.arrows;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.function.Function;
 
 import com.github.s4ke.functional.monads.ListM;
@@ -35,11 +33,10 @@ public class ParallelArrow<A, B> {
 
     public Function<ListM<A>, ListM<B>> runOn(ExecutorService executorService) {
         return (aListM) -> {
-            //force to normal form, hack with normalization to List
-            List<Future<B>> futures = this.fns.zipWith(aListM, (fn, a) ->
+            // zipWith fns to ListM<Future<B>>, force evaluation of Futures, map to ListM<B>
+            return this.fns.zipWith(aListM, (fn, a) ->
                     executorService.submit(() -> fn.apply(a))
-            ).toList();
-            return ListM.fromList(futures).map(fut -> {
+            ).eval().map(fut -> {
                 try {
                     return fut.get();
                 } catch (InterruptedException | ExecutionException e) {

@@ -16,6 +16,9 @@ public class ListM<A> {
     private final Supplier<A> head;
     private final Supplier<ListM<A>> tail;
 
+    private A headValue;
+    private ListM<A> tailValue;
+
     private ListM() {
         this(null, null);
     }
@@ -33,12 +36,18 @@ public class ListM<A> {
         this.tail = tail;
     }
 
-    public A head() {
-        return this.head.get();
+    public synchronized A head() {
+        if (this.headValue == null) {
+            this.headValue = this.head.get();
+        }
+        return this.headValue;
     }
 
-    public ListM<A> tail() {
-        return this.tail.get();
+    public synchronized ListM<A> tail() {
+        if (this.tailValue == null) {
+            this.tailValue = this.tail.get();
+        }
+        return this.tailValue;
     }
 
     public ListM<A> prepend(A value) {
@@ -49,24 +58,6 @@ public class ListM<A> {
         return new ListM<>(value, () -> this);
     }
 
-    public static <A> ListM<A> fromList(final List<A> list) {
-        ListM<A> ret = new ListM<>(list.get(list.size() - 1));
-        for (int i = list.size() - 2; i >= 0; --i) {
-            ret = ret.prepend(list.get(i));
-        }
-        return ret;
-    }
-
-    public static <A> ListM<A> infinite(A a) {
-        return new ListM<>(() -> a,
-                () -> infinite(a));
-    }
-
-    public static <A, B> ListM<Function<A, B>> infinite(Function<A, B> a) {
-        return new ListM<>(() -> a,
-                () -> infinite(a));
-    }
-
     public List<A> toList() {
         List<A> ret = new ArrayList<>();
         ListM<A> cur = this;
@@ -75,6 +66,15 @@ public class ListM<A> {
             cur = cur.tail();
         }
         return ret;
+    }
+
+    public ListM<A> eval() {
+        ListM<A> cur = this;
+        while (cur != EMPTY) {
+            cur.head();
+            cur = cur.tail();
+        }
+        return this;
     }
 
     public <B> ListM<B> map(Function<A, B> fn) {
@@ -103,6 +103,24 @@ public class ListM<A> {
                     }
                 }
         );
+    }
+
+    public static <A> ListM<A> fromList(final List<A> list) {
+        ListM<A> ret = new ListM<>(list.get(list.size() - 1));
+        for (int i = list.size() - 2; i >= 0; --i) {
+            ret = ret.prepend(list.get(i));
+        }
+        return ret;
+    }
+
+    public static <A> ListM<A> infinite(A a) {
+        return new ListM<>(() -> a,
+                () -> infinite(a));
+    }
+
+    public static <A, B> ListM<Function<A, B>> infinite(Function<A, B> a) {
+        return new ListM<>(() -> a,
+                () -> infinite(a));
     }
 
 }
