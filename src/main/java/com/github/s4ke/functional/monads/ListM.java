@@ -79,11 +79,11 @@ public class ListM<A> {
 
     public <B> ListM<B> map(Function<A, B> fn) {
         return new ListM<>(
-                () -> fn.apply(this.head.get()),
+                () -> fn.apply(this.head()),
                 () -> {
-                    ListM<A> tail = this.tail.get();
+                    ListM<A> tail = this.tail();
                     if (tail != EMPTY) {
-                        return this.tail.get().map(fn);
+                        return this.tail().map(fn);
                     } else {
                         return (ListM<B>) EMPTY;
                     }
